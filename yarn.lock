@@ -8032,6 +8032,11 @@ simple-swizzle@^0.2.2:
   dependencies:
     is-arrayish "^0.3.1"
 
+skeleton-loader-vue@^1.0.8:
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/skeleton-loader-vue/-/skeleton-loader-vue-1.0.8.tgz#90bf9e27fe569839d62591a20d7b429bf8fe684b"
+  integrity sha512-RpEHo399mgBeTPpq3izBpaauRVHwV1yjyiGbmvnD5Dlh+BMhm0JBRiL7UD/8xOOooNo5AMQelDmk45gyw33/5Q==
+
 slash@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/slash/-/slash-1.0.0.tgz#c41f2f6c39fc16d1cd17ad4b5d896114ae470d55"
