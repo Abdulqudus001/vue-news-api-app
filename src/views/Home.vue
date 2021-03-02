@@ -16,5 +16,17 @@ export default {
   components: {
     News,
   },
+  mounted() {
+    this.fetchNews();
+  },
+  methods: {
+    fetchNews() {
+      this.$axios.get('https://newsapi.org/v2/top-headlines?country=ng').then((res) => {
+        console.log(res);
+      }).catch((err) => {
+        console.log(err);
+      });
+    },
+  },
 };
 </script>
