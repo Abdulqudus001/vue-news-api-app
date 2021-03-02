@@ -10,7 +10,11 @@
       <span class="news__category bg-red-600 py-1 px-3 my-3 inline-block rounded-2xl capitalize text-sm">
         {{ category }}
       </span>
-      <h3 class="news__headline text-xl font-semibold">{{ title }}</h3>
+      <h3 class="news__headline text-lg my-2 font-semibold">{{ title }}</h3>
+      <p
+        v-if="description"
+        class="font-semibold text-sm"
+      >{{ description }}</p>
     </div>
   </a>
 </template>
@@ -21,6 +25,10 @@ export default {
     category: {
       type: String,
       default: 'Category',
+    },
+    description: {
+      type: String,
+      default: '',
     },
     image: {
       type: String,
