@@ -5,17 +5,36 @@
       <span>{{ userLocation }}</span>
     </p>
     <news-loader v-if="loading" />
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <News
-        v-for="article in articles"
-        :key="article.url"
-        :image="article.urlToImage"
-        :title="article.title"
-        :category="category"
-        :link="article.url"
-        :description="article.description"
-      />
-    </div>
+    <template v-else>
+      <button
+        v-for="category in categories"
+        :key="category"
+        class="bg-red-500 py-1 px-3 my-3 inline-block rounded-2xl capitalize text-sm text-white mr-2"
+        :class="category === selectedCategory ? 'bg-red-700': null"
+        @click="changeCategory(category)"
+      >
+        {{ category }}
+      </button>
+      <p class="text-md font-medium my-2">Showing articles for {{ selectedCategory }}</p>
+      <template v-if="articles.length > 0">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <News
+            v-for="article in articles"
+            :key="article.url"
+            :image="article.urlToImage"
+            :title="article.title"
+            :category="selectedCategory"
+            :link="article.url"
+            :description="article.description"
+          />
+        </div>
+      </template>
+      <template v-else>
+        <div class="text-center text-4xl text-gray-400">
+          No article available
+        </div>
+      </template>
+    </template>
   </main>
 </template>
 
@@ -34,7 +53,8 @@ export default {
     articles: [],
     totalLength: 0,
     pageSize: 5,
-    category: 'business',
+    selectedCategory: 'business',
+    categories: ['business', 'entertainment', 'general', 'health', 'science', 'sports', 'technology'],
     userLocation: 'Somewhere in Nigeria',
     locationShortcode: 'ng',
     locationKeyword: 'Nigeria',
@@ -88,9 +108,13 @@ export default {
         }
       });
     },
+    changeCategory(category) {
+      this.selectedCategory = category;
+      this.fetchNews();
+    },
     fetchNews() {
       this.loading = true;
-      const url = `https://newsapi.org/v2/top-headlines?q=${this.locationKeyword}&country=${this.locationShortcode}&pageSize=${this.pageSize}&category=${this.category}`;
+      const url = `https://newsapi.org/v2/top-headlines?q=${this.locationKeyword}&country=${this.locationShortcode}&pageSize=${this.pageSize}&category=${this.selectedCategory}`;
       this.$axios.get(url).then(({ data }) => {
         this.loading = false;
         this.articles = data.articles;
