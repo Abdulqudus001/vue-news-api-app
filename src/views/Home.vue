@@ -1,10 +1,15 @@
 <template>
   <main class="home container mx-auto">
-    <news-loader />
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <News />
-      <News />
-      <News />
+    <news-loader v-if="loading" />
+    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <News
+        v-for="article in articles"
+        :key="article.url"
+        :image="article.urlToImage"
+        :title="article.title"
+        :category="category"
+        :link="article.url"
+      />
     </div>
   </main>
 </template>
@@ -19,15 +24,32 @@ export default {
     News,
     NewsLoader,
   },
+  data: () => ({
+    loading: false,
+    articles: [],
+    totalLength: 0,
+    pageSize: 5,
+    category: 'general',
+  }),
   mounted() {
     this.fetchNews();
   },
   methods: {
     fetchNews() {
-      this.$axios.get('https://newsapi.org/v2/top-headlines?country=ng').then((res) => {
-        console.log(res);
+      this.loading = true;
+      const url = `https://newsapi.org/v2/top-headlines?country=ng&pageSize=${this.pageSize}&category=${this.category}`;
+      this.$axios.get(url).then(({ data }) => {
+        this.loading = false;
+        this.articles = data.articles;
+        this.totalLength = data.totalResults;
+        console.log(data);
       }).catch((err) => {
-        console.log(err);
+        let message = 'Something went wrong';
+        this.loading = false;
+        if (err.response.data.message) {
+          message = err.response.data.message;
+        }
+        this.$toast.error(message);
       });
     },
   },

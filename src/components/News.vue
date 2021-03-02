@@ -1,8 +1,13 @@
 <template>
-  <a :href="link" class="news relative w-full block overflow-hidden min-h-400">
-    <img :src="image" alt="" class="news__img absolute w-full h-full">
+  <a
+    :href="link"
+    class="news relative w-full block overflow-hidden min-h-400"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <img :src="image || 'https://source.unsplash.com/random/500x500'" alt="" class="news__img absolute">
     <div class="news__body absolute z-1 p-3 bottom-0 text-white">
-      <span class="news__category bg-red-600 py-1 px-3 my-3 inline-block rounded-2xl">
+      <span class="news__category bg-red-600 py-1 px-3 my-3 inline-block rounded-2xl capitalize text-sm">
         {{ category }}
       </span>
       <h3 class="news__headline text-xl font-semibold">{{ title }}</h3>
@@ -19,7 +24,7 @@ export default {
     },
     image: {
       type: String,
-      default: 'https://source.unsplash.com/random/500x500',
+      default: '',
     },
     link: {
       type: String,
@@ -39,7 +44,7 @@ export default {
     content: '';
     width: 100%;
     height: 100%;
-    background-color: rgba($color: #000, $alpha: 0.3);
+    background-color: rgba($color: #000, $alpha: 0.5);
     position: absolute;
     top: 0;
   }
@@ -50,6 +55,9 @@ export default {
 
   &__img {
     transition: transform .2s ease-in;
+    min-width: 100%;
+    min-height: 100%;
+    max-width: unset;
   }
 }
 </style>
