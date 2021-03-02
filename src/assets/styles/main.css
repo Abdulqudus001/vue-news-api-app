@@ -11,8 +11,13 @@
 
 body {
   font-family: 'Montserrat', sans-serif;
+  color: #000;
 }
 
 .pacifico {
   font-family: 'Pacifico', cursive;
+}
+
+.container {
+  max-width: 1366px;
 }
