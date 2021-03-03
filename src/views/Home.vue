@@ -44,6 +44,13 @@
             :description="article.description"
           />
         </div>
+        <pagination
+          v-model="currentPage"
+          :records="totalLength"
+          :per-page="pageSize"
+          @paginate="paginationChange"
+          class="pagination"
+        />
       </template>
       <template v-else>
         <div class="text-center text-4xl text-gray-400">
@@ -55,6 +62,7 @@
 </template>
 
 <script>
+import Pagination from 'vue-pagination-2';
 import News from '@/components/News.vue';
 import NewsLoader from '@/components/skeleton/News.vue';
 
@@ -63,10 +71,12 @@ export default {
   components: {
     News,
     NewsLoader,
+    Pagination,
   },
   data: () => ({
     articles: [],
     categories: ['business', 'entertainment', 'general', 'health', 'science', 'sports', 'technology'],
+    currentPage: 1,
     loading: false,
     locationKeyword: 'Nigeria',
     locationShortcode: 'ng',
@@ -134,7 +144,7 @@ export default {
       this.searched = false;
       this.searchText = '';
       this.loading = true;
-      const url = `https://newsapi.org/v2/top-headlines?q=${this.locationKeyword}&country=${this.locationShortcode}&pageSize=${this.pageSize}&category=${this.selectedCategory}`;
+      const url = `https://newsapi.org/v2/top-headlines?q=${this.locationKeyword}&country=${this.locationShortcode}&pageSize=${this.pageSize}&category=${this.selectedCategory}&page=${this.currentPage}`;
       this.$axios.get(url).then(({ data }) => {
         this.loading = false;
         this.articles = data.articles;
@@ -154,7 +164,7 @@ export default {
     },
     search() {
       this.loading = true;
-      const url = `https://newsapi.org/v2/everything?q=${this.searchText} AND ${this.selectedCategory}&pageSize=${this.pageSize}`;
+      const url = `https://newsapi.org/v2/everything?q=${this.searchText} AND ${this.selectedCategory}&pageSize=${this.pageSize}&page=${this.currentPage}`;
       this.$axios.get(url).then(({ data }) => {
         console.log(data);
         this.searched = true;
@@ -166,6 +176,13 @@ export default {
         this.handleFetchError(err);
       });
     },
+    paginationChange() {
+      if (this.searched) {
+        this.search();
+      } else {
+        this.fetchNews();
+      }
+    },
   },
 };
 </script>
@@ -174,6 +191,35 @@ export default {
 .search {
   &::placeholder {
     font-size: .9rem;
+  }
+}
+
+.pagination::v-deep {
+  .VuePagination__count {
+    text-align: center;
+  }
+
+  .VuePagination__pagination {
+    display: flex;
+    justify-content: center;
+
+    &-item {
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      padding: 5px 15px;
+      color: #dc2626;
+      background-color: #fff;
+      transition: background-color .1s ease;
+      &:hover {
+        color: #fff;
+        background-color: #dc2626;
+      }
+
+      &.active {
+        color: #fff;
+        background-color: #dc2626;
+      }
+    }
   }
 }
 </style>
