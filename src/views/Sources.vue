@@ -16,6 +16,7 @@
             placeholder="Select sources"
             :options="sources"
             @input="fetchNews"
+            track-by="id"
             class="custom-select mt-2 mb-3"
           />
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
