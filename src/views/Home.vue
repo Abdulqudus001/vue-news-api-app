@@ -1,77 +1,84 @@
 <template>
-  <main class="home container mx-auto py-11">
-    <p class="mb-3">
-      <span class="font-medium">Location: </span>
-      <span>{{ userLocation }}</span>
-    </p>
-    <news-loader v-if="loading" />
-    <template v-else>
-      <button
-        v-for="category in categories"
-        :key="category"
-        class="bg-red-500 py-1 px-3 my-3 inline-block rounded-2xl capitalize text-sm text-white mr-2"
-        :class="category === selectedCategory ? 'bg-red-700': null"
-        @click="changeCategory(category)"
-      >
-        {{ category }}
-      </button>
-      <p class="text-md font-medium my-2">Showing articles for {{ selectedCategory }}</p>
-      <form @submit.prevent="search" class="relative w-500 max-w-full my-3">
-        <input
-          v-model="searchText"
-          type="search"
-          name="search"
-          id="search"
-          class="search rounded-3xl h-10 border-gray-400 border px-2 w-full focus:outline-none focus:border-gray-600"
-          :placeholder="`Search articles in ${selectedCategory}`"
-        >
-        <button class="bg-red-500 h-10 text-white font-bold text-sm rounded-r-3xl min-w-70 absolute top-0 right-0">
-          Search
-        </button>
-      </form>
-      <template v-if="articles.length > 0">
-        <p v-if="searched" class="text-md font-medium my-2">
-          Showing search results for {{ searchText }} articles in the {{ selectedCategory }} category
-        </p>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <News
-            v-for="article in articles"
-            :key="article.url"
-            :image="article.urlToImage"
-            :title="article.title"
-            :category="selectedCategory"
-            :link="article.url"
-            :description="article.description"
-          />
-        </div>
-        <pagination
-          v-model="currentPage"
-          :records="totalLength"
-          :per-page="pageSize"
-          @paginate="paginationChange"
-          class="pagination"
-        />
-      </template>
+  <section>
+    <app-navbar></app-navbar>
+    <main class="home container mx-auto py-11">
+      <p class="mb-3">
+        <span class="font-medium">Location: </span>
+        <span>{{ userLocation }}</span>
+      </p>
+      <news-loader v-if="loading" />
       <template v-else>
-        <div class="text-center text-4xl text-gray-400">
-          No article available
-        </div>
+        <button
+          v-for="category in categories"
+          :key="category"
+          class="bg-red-500 py-1 px-3 my-3 inline-block rounded-2xl capitalize text-sm text-white mr-2"
+          :class="category === selectedCategory ? 'bg-red-700': null"
+          @click="changeCategory(category)"
+        >
+          {{ category }}
+        </button>
+        <p class="text-md font-medium my-2">Showing articles for {{ selectedCategory }}</p>
+        <form @submit.prevent="search" class="relative w-500 max-w-full my-3">
+          <input
+            v-model="searchText"
+            type="search"
+            name="search"
+            id="search"
+            class="search rounded-3xl h-10 border-gray-400 border px-2 w-full focus:outline-none focus:border-gray-600"
+            :placeholder="`Search articles in ${selectedCategory}`"
+          >
+          <button class="bg-red-500 h-10 text-white font-bold text-sm rounded-r-3xl min-w-70 absolute top-0 right-0">
+            Search
+          </button>
+        </form>
+        <template v-if="articles.length > 0">
+          <p v-if="searched" class="text-md font-medium my-2">
+            Showing search results for {{ searchText }} articles in the {{ selectedCategory }} category
+          </p>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <News
+              v-for="article in articles"
+              :key="article.url"
+              :image="article.urlToImage"
+              :title="article.title"
+              :category="selectedCategory"
+              :link="article.url"
+              :description="article.description"
+              :is-saved="doesNewsExistInLS(encode(article.url))"
+              @save="saveNews(article)"
+            />
+          </div>
+          <pagination
+            v-model="currentPage"
+            :records="totalLength"
+            :per-page="pageSize"
+            @paginate="paginationChange"
+            class="pagination"
+          />
+        </template>
+        <template v-else>
+          <div class="text-center text-4xl text-gray-400">
+            No article available
+          </div>
+        </template>
       </template>
-    </template>
-  </main>
+    </main>
+  </section>
 </template>
 
 <script>
 import Pagination from 'vue-pagination-2';
 import News from '@/components/News.vue';
+import AppNavbar from '@/components/AppNavbar.vue';
 import NewsLoader from '@/components/skeleton/News.vue';
 
 export default {
   name: 'Home',
   components: {
+    AppNavbar,
+    Pagination,
     News,
     NewsLoader,
-    Pagination,
   },
   data: () => ({
     articles: [],
@@ -104,6 +111,9 @@ export default {
     };
   },
   methods: {
+    encode(url) {
+      return btoa(url);
+    },
     getUserLocation() {
       if (navigator.geolocation) {
         console.log('object');
@@ -181,6 +191,27 @@ export default {
         this.search();
       } else {
         this.fetchNews();
+      }
+    },
+    doesNewsExistInLS(id) {
+      let lsArticles = localStorage.getItem('yv-news');
+      if (!lsArticles) {
+        return false;
+      }
+      lsArticles = JSON.parse(lsArticles);
+      const articleIndex = lsArticles.findIndex((el) => el.id === id);
+      return articleIndex > -1;
+    },
+    saveNews(article) {
+      const lsData = {
+        category: this.selectedCategory,
+        id: btoa(article.url),
+        ...article,
+      };
+      if (this.doesNewsExistInLS(lsData.id) === false) {
+        const lsArticles = JSON.parse(localStorage.getItem('yv-news')) || [];
+        lsArticles.push(lsData);
+        localStorage.setItem('yv-news', JSON.stringify(lsArticles));
       }
     },
   },

@@ -16,6 +16,14 @@
         class="font-semibold text-sm"
       >{{ description }}</p>
     </div>
+    <button
+      v-if="isSaved === false"
+      title="Read later"
+      class="news__button bg-red-600 absolute top-1 right-1 z-1 rounded-full text-white text-2xl font-bold"
+      @click.prevent="$emit('save')"
+    >
+      +
+    </button>
   </a>
 </template>
 
@@ -33,6 +41,10 @@ export default {
     image: {
       type: String,
       default: '',
+    },
+    isSaved: {
+      type: Boolean,
+      default: false,
     },
     link: {
       type: String,
@@ -66,6 +78,11 @@ export default {
     min-width: 100%;
     min-height: 100%;
     max-width: unset;
+  }
+
+  &__button {
+    width: 30px;
+    height: 30px;
   }
 }
 </style>
