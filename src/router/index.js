@@ -15,6 +15,11 @@ const routes = [
     name: 'SavedNews',
     component: () => import(/* webpackChunkName: "SavedNews" */ '../views/Saved.vue'),
   },
+  {
+    path: '/sources',
+    name: 'Sources',
+    component: () => import(/* webpackChunkName: "SavedNews" */ '../views/Sources.vue'),
+  },
 ];
 
 const router = new VueRouter({

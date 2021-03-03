@@ -11,6 +11,11 @@
           Saved News
         </router-link>
       </li>
+      <li class="inline-block mx-2">
+        <router-link to="sources" class="text-red-600 font-medium hover:text-red-500">
+          Sources
+        </router-link>
+      </li>
     </ul>
   </nav>
 </template>
