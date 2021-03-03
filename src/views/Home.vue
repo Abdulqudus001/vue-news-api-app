@@ -1,5 +1,5 @@
 <template>
-  <main class="home container mx-auto">
+  <main class="home container mx-auto py-11">
     <p class="mb-3">
       <span class="font-medium">Location: </span>
       <span>{{ userLocation }}</span>
@@ -16,7 +16,23 @@
         {{ category }}
       </button>
       <p class="text-md font-medium my-2">Showing articles for {{ selectedCategory }}</p>
+      <form @submit.prevent="search" class="relative w-500 max-w-full my-3">
+        <input
+          v-model="searchText"
+          type="search"
+          name="search"
+          id="search"
+          class="search rounded-3xl h-10 border-gray-400 border px-2 w-full focus:outline-none focus:border-gray-600"
+          :placeholder="`Search articles in ${selectedCategory}`"
+        >
+        <button class="bg-red-500 h-10 text-white font-bold text-sm rounded-r-3xl min-w-70 absolute top-0 right-0">
+          Search
+        </button>
+      </form>
       <template v-if="articles.length > 0">
+        <p v-if="searched" class="text-md font-medium my-2">
+          Showing search results for {{ searchText }} articles in the {{ selectedCategory }} category
+        </p>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <News
             v-for="article in articles"
@@ -49,15 +65,17 @@ export default {
     NewsLoader,
   },
   data: () => ({
-    loading: false,
     articles: [],
-    totalLength: 0,
-    pageSize: 5,
-    selectedCategory: 'business',
     categories: ['business', 'entertainment', 'general', 'health', 'science', 'sports', 'technology'],
-    userLocation: 'Somewhere in Nigeria',
-    locationShortcode: 'ng',
+    loading: false,
     locationKeyword: 'Nigeria',
+    locationShortcode: 'ng',
+    pageSize: 5,
+    searchText: '',
+    searched: false,
+    selectedCategory: 'business',
+    totalLength: 0,
+    userLocation: 'Somewhere in Nigeria',
   }),
   mounted() {
     // Load map API key
@@ -113,6 +131,8 @@ export default {
       this.fetchNews();
     },
     fetchNews() {
+      this.searched = false;
+      this.searchText = '';
       this.loading = true;
       const url = `https://newsapi.org/v2/top-headlines?q=${this.locationKeyword}&country=${this.locationShortcode}&pageSize=${this.pageSize}&category=${this.selectedCategory}`;
       this.$axios.get(url).then(({ data }) => {
@@ -121,12 +141,29 @@ export default {
         this.totalLength = data.totalResults;
         console.log(data);
       }).catch((err) => {
-        let message = 'Something went wrong';
+        this.handleFetchError(err);
+      });
+    },
+    handleFetchError(err) {
+      let message = 'Something went wrong';
+      this.loading = false;
+      if (err.response.data.message) {
+        message = err.response.data.message;
+      }
+      this.$toast.error(message);
+    },
+    search() {
+      this.loading = true;
+      const url = `https://newsapi.org/v2/everything?q=${this.searchText} AND ${this.selectedCategory}&pageSize=${this.pageSize}`;
+      this.$axios.get(url).then(({ data }) => {
+        console.log(data);
+        this.searched = true;
         this.loading = false;
-        if (err.response.data.message) {
-          message = err.response.data.message;
-        }
-        this.$toast.error(message);
+        this.articles = data.articles;
+        this.totalLength = data.totalResults;
+      }).catch((err) => {
+        this.loading = false;
+        this.handleFetchError(err);
       });
     },
   },
@@ -134,7 +171,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.home {
-  padding: 40px 0;
+.search {
+  &::placeholder {
+    font-size: .9rem;
+  }
 }
 </style>
